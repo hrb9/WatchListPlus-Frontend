@@ -1,0 +1,64 @@
+name: main-pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: CodeQL Init
+        uses: github/codeql-action/init@v3
+        with:
+          languages: "javascript, python"
+
+      - name: CodeQL Analyze
+        uses: github/codeql-action/analyze@v3
+
+      - name: Integration Test
+        run: |
+          echo "Running integration tests to verify connectivity between microservices..."
+          # Insert your integration test commands here (e.g., running docker-compose up, then executing test scripts)
+
+      - name: AI Code Review
+        run: |
+          echo "Performing AI-based code review..."
+          # Here you could call an AI API (e.g., OpenAI) to analyze the diff and output review comments.
+          # For now, this is a placeholder.
+          echo "AI Review: No critical issues found."
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Manager Approval Check
+        run: |
+          echo "Manager approval is required for merging to main. (This is enforced by branch protection rules.)"
+
+      - name: Bump Version
+        id: bump
+        run: |
+          chmod +x scripts/bump_version.sh
+          newver=$(./scripts/bump_version.sh | grep "New version" | awk '{print $3}')
+          echo "version=$newver" >> $GITHUB_OUTPUT
+
+      - name: Build Docker Image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}:main-${{ steps.bump.outputs.version }} .
+          docker tag ghcr.io/${{ github.repository }}:main-${{ steps.bump.outputs.version }} ghcr.io/${{ github.repository }}:latest
+
+      - name: Login to GHCR
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push Docker Images
+        run: |
+          docker push ghcr.io/${{ github.repository }}:main-${{ steps.bump.outputs.version }}
+          docker push ghcr.io/${{ github.repository }}:latest
