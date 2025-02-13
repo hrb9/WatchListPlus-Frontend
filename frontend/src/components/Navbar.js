@@ -2,7 +2,7 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { useDispatch } from 'react-redux';
-import { logout } from '../../slices/authSlice';  // Changed import path as required
+import { setAuth } from '../slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
