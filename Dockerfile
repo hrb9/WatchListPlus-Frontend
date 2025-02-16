@@ -1,12 +1,13 @@
 # Dockerfile
 
 # 1) Build React
-ARG BUILDPLATFORM 
+ARG BUILDPLATFORM # Keep this declaration at the top level (optional, good practice)
 FROM --platform=$BUILDPLATFORM node:18-alpine as frontend_build
+ARG BUILDPLATFORM # Re-declare ARG inside the frontend_build stage - THIS IS THE KEY CHANGE
 ARG NODE_ENV=development
 ENV NODE_ENV=$NODE_ENV
 WORKDIR /frontend
-RUN echo "BUILDPLATFORM is: $BUILDPLATFORM" 
+RUN echo "BUILDPLATFORM is: $BUILDPLATFORM" # Keep the debug echo
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/ ./
