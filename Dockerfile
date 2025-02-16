@@ -6,7 +6,7 @@ FROM --platform=$BUILDPLATFORM node:18-alpine as frontend_build
 ARG NODE_ENV=development
 ENV NODE_ENV=$NODE_ENV
 WORKDIR /frontend
-RUN echo "BUILDPLATFORM is: $BUILDPLATFORM" # נשאיר את השורה הזו לדיבוג
+RUN echo "BUILDPLATFORM is: $BUILDPLATFORM" 
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/ ./
