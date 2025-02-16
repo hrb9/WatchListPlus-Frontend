@@ -1,11 +1,12 @@
 # Dockerfile
 
 # 1) Build React
-FROM --platform=$BUILDPLATFORM node:18-alpine as frontend_build # שורה ששוּנתה
+ARG BUILDPLATFORM 
+FROM --platform=$BUILDPLATFORM node:18-alpine as frontend_build
 ARG NODE_ENV=development
 ENV NODE_ENV=$NODE_ENV
 WORKDIR /frontend
-RUN echo "BUILDPLATFORM is: $BUILDPLATFORM" # הוספנו את השורה הזו
+RUN echo "BUILDPLATFORM is: $BUILDPLATFORM" # נשאיר את השורה הזו לדיבוג
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/ ./
