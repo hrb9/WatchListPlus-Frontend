@@ -3,7 +3,7 @@ name: main-pipeline
 permissions:
   contents: read
   security-events: write    
-  packages: write, read 
+  packages: write
 
 
 on:
