@@ -49,16 +49,16 @@ jobs:
           REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           VERSION=${{ steps.bump.outputs.version }}
           
-          echo "Building for amd64..."
+          echo "Building image for amd64..."
           docker buildx build --platform linux/amd64 --load -t ghcr.io/$REPO:main-${VERSION}-amd64 .
           
-          echo "Building for arm64..."
+          echo "Building image for arm64..."
           docker buildx build --platform linux/arm64 --load -t ghcr.io/$REPO:main-${VERSION}-arm64 .
           
-          # Create a multi-architecture manifest image and push it
+          echo "Creating multi-architecture manifest image and pushing..."
           docker buildx build --platform linux/amd64,linux/arm64 --push -t ghcr.io/$REPO:main-${VERSION} .
           
-          # Tag the multi-arch manifest as latest
+          echo "Tagging multi-arch image as latest..."
           docker tag ghcr.io/$REPO:main-${VERSION} ghcr.io/$REPO:latest
 
       - name: Login to GHCR
