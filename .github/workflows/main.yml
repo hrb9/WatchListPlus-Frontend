@@ -40,18 +40,37 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-      - name: Build Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker Images for Multiple Architectures
         run: |
           REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          docker build --build-arg NODE_ENV=production -t ghcr.io/$REPO:main-${{ steps.bump.outputs.version }} .
-          docker tag ghcr.io/$REPO:main-${{ steps.bump.outputs.version }} ghcr.io/$REPO:latest
+          VERSION=${{ steps.bump.outputs.version }}
+          
+          echo "Building for amd64..."
+          docker buildx build --platform linux/amd64 --load -t ghcr.io/$REPO:main-${VERSION}-amd64 .
+          
+          echo "Building for arm64..."
+          docker buildx build --platform linux/arm64 --load -t ghcr.io/$REPO:main-${VERSION}-arm64 .
+          
+          # Create a multi-architecture manifest image
+          docker buildx build --platform linux/amd64,linux/arm64 --push -t ghcr.io/$REPO:main-${VERSION} .
+          
+          # Tag the multi-arch manifest as latest
+          docker tag ghcr.io/$REPO:main-${VERSION} ghcr.io/$REPO:latest
 
       - name: Login to GHCR
         run: |
+          # If necessary, replace GITHUB_TOKEN with your PAT secret (e.g., CR_PAT)
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Push Docker
+      - name: Push Architecture-Specific Images
         run: |
           REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          docker push ghcr.io/$REPO:main-${{ steps.bump.outputs.version }}
+          VERSION=${{ steps.bump.outputs.version }}
+          
+          docker push ghcr.io/$REPO:main-${VERSION}-amd64
+          docker push ghcr.io/$REPO:main-${VERSION}-arm64
+          docker push ghcr.io/$REPO:main-${VERSION}
           docker push ghcr.io/$REPO:latest
