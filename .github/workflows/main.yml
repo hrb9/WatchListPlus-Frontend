@@ -2,7 +2,8 @@ name: main-pipeline
 
 permissions:
   contents: read
-  security-events: write
+  security-events: write    
+  packages: write
 
 on:
   push:
