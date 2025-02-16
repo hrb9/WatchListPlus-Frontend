@@ -7,7 +7,7 @@ ENV NODE_ENV=$NODE_ENV
 WORKDIR /frontend
 COPY frontend/package*.json ./
 RUN npm install
-RUN npm install --include=dev
+RUN npm install 
 COPY frontend/ ./
 RUN npm run build
 
