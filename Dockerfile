@@ -4,7 +4,7 @@ ARG NODE_ENV=development
 ENV NODE_ENV=$NODE_ENV
 WORKDIR /frontend
 COPY frontend/package*.json ./
-RUN npm install
+RUN npm install --no-optional
 RUN npm install -g serve
 COPY frontend/ ./
 RUN npm run build
