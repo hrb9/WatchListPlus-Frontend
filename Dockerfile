@@ -1,4 +1,5 @@
-FROM --platform=$BUILDPLATFORM node:18-alpine as frontend_build ARG BUILDPLATFORM
+FROM --platform=$BUILDPLATFORM node:18-alpine as frontend_build
+ARG BUILDPLATFORM  
 ARG NODE_ENV=development
 ENV NODE_ENV=$NODE_ENV
 WORKDIR /frontend
