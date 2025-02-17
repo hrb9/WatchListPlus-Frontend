@@ -3,7 +3,6 @@ ARG BUILDPLATFORM
 ARG NODE_ENV=development
 ENV NODE_ENV=$NODE_ENV
 WORKDIR /frontend
-RUN echo "BUILDPLATFORM is: $BUILDPLATFORM"
 COPY frontend/package*.json ./
 RUN npm install
 RUN npm install -g serve
