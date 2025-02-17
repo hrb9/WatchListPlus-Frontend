@@ -4,7 +4,7 @@ permissions:
   contents: read
   security-events: write
   packages: write
-  actions: write # הוסף הרשאות actions
+  actions: write 
 
 on:
   push:
@@ -40,27 +40,24 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-      - name: Login to GHCR for Buildx # הוסף login מיוחד עבור buildx
-        run: |
-          docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-          
       - name: Build Docker Images for Multiple Architectures
         run: |
-          REPO=$(echo "hrb9/WatchListPlus-Frontend" | tr '[:upper:]' '[:lower:]')
-          REPO=$(echo "hrb9/WatchListPlus-Frontend" | tr '[:upper:]' '[:lower:]')
-          VERSION=${{ steps.version.outputs.VERSION_SHORT }}
+          REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          VERSION=${{ steps.bump.outputs.version }}
+          
           echo "Building image for amd64..."
-          docker buildx build --platform linux/amd64 --load --build-arg BUILDPLATFORM=linux/amd64 -t ghcr.io/$REPO:main-${VERSION}-amd64 .
+          docker buildx build --platform linux/amd64 --load -t ghcr.io/$REPO:main-${VERSION}-amd64 .
+          
           echo "Building image for arm64..."
-          docker buildx build --platform linux/arm64/v8 --load --no-cache --build-arg BUILDPLATFORM=linux/arm64/v8 -t ghcr.io/$REPO:main-${VERSION}-arm64 . # הוספנו --no-cache כאן
+          docker buildx build --platform linux/arm64/v8 --load -t ghcr.io/$REPO:main-${VERSION}-arm64 .
+          
           echo "Creating multi-architecture manifest image and pushing..."
           docker buildx build --platform linux/amd64,linux/arm64/v8 --push -t ghcr.io/$REPO:main-${VERSION} .
+          
           echo "Tagging multi-arch image as latest..."
           docker tag ghcr.io/$REPO:main-${VERSION} ghcr.io/$REPO:latest
 
-
-
-      - name: Login to GHCR # Login סטנדרטי לפני push
+      - name: Login to GHCR
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
@@ -68,7 +65,7 @@ jobs:
         run: |
           REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           VERSION=${{ steps.bump.outputs.version }}
-
+          
           docker push ghcr.io/$REPO:main-${VERSION}-amd64
           docker push ghcr.io/$REPO:main-${VERSION}-arm64
           docker push ghcr.io/$REPO:main-${VERSION}
