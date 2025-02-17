@@ -52,9 +52,9 @@ jobs:
           echo "Building image for amd64..."
           docker buildx build --platform linux/amd64 --load --build-arg BUILDPLATFORM=linux/amd64 -t ghcr.io/$REPO:main-${VERSION}-amd64 .
           echo "Building image for arm64..."
-          docker buildx build --platform linux/arm64 --load --no-cache --build-arg BUILDPLATFORM=linux/arm64 -t ghcr.io/$REPO:main-${VERSION}-arm64 . # הוספנו --no-cache כאן
+          docker buildx build --platform linux/arm64/v8 --load --no-cache --build-arg BUILDPLATFORM=linux/arm64/v8 -t ghcr.io/$REPO:main-${VERSION}-arm64 . # הוספנו --no-cache כאן
           echo "Creating multi-architecture manifest image and pushing..."
-          docker buildx build --platform linux/amd64,linux/arm64 --push -t ghcr.io/$REPO:main-${VERSION} .
+          docker buildx build --platform linux/amd64,linux/arm64/v8 --push -t ghcr.io/$REPO:main-${VERSION} .
           echo "Tagging multi-arch image as latest..."
           docker tag ghcr.io/$REPO:main-${VERSION} ghcr.io/$REPO:latest
 
