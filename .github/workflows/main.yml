@@ -66,3 +66,12 @@ jobs:
           docker buildx build --platform linux/amd64,linux/arm64/v8 --push -t ghcr.io/$REPO:main-${VERSION} -t ghcr.io/$REPO:latest .
 
           
+      - name: Push Docker Images
+        run: |
+          REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          VERSION=${{ steps.bump.outputs.version }}
+          
+          docker push ghcr.io/$REPO:main-${VERSION}-amd64
+          docker push ghcr.io/$REPO:main-${VERSION}-arm64
+          docker push ghcr.io/$REPO:main-${VERSION}
+          docker push ghcr.io/$REPO:latest
