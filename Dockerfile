@@ -1,5 +1,5 @@
 # 1) Build React
-FROM node:18-alpine AS frontend_build
+FROM node AS frontend_build
 ARG NODE_ENV=development
 ENV NODE_ENV=$NODE_ENV
 WORKDIR /frontend
@@ -9,7 +9,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # 2) Build Python (Flask) and install dependencies
-FROM python:3.10-slim AS backend
+FROM python AS backend
 WORKDIR /app
 COPY backend/requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
